@@ -99,6 +99,11 @@ export async function handleRequest(event, responseStream, _context, client) {
             const text = event.contentBlockDelta.delta.text;
             responseStream.write(`data: ${JSON.stringify({ type: "text", content: text })}\n\n`);
           }
+          // contentBlockStart イベント（ツール呼出し開始）
+          else if (event.contentBlockStart?.start?.toolUse) {
+            const toolName = event.contentBlockStart.start.toolUse.name;
+            responseStream.write(`data: ${JSON.stringify({ type: "tool_use", name: toolName })}\n\n`);
+          }
           // messageStop イベント
           else if (event.messageStop) {
             // ストリーム完了

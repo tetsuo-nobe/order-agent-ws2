@@ -128,6 +128,41 @@ describe("BackendFunction", () => {
     });
   });
 
+  describe("ツール使用イベントの転送", () => {
+    it("contentBlockStart のツール使用イベントを tool_use SSE として返す", async () => {
+      // ツール呼出し開始 → テキスト応答のストリームをモック
+      const mockChunks = [
+        { contentBlockStart: { start: { toolUse: { name: "get_product_info", toolUseId: "tool-1" } } } },
+        { contentBlockDelta: { delta: { text: "製品A" }, contentBlockIndex: 1 } },
+      ];
+
+      mockClient = {
+        send: async () => ({
+          stream: (async function* () {
+            for (const c of mockChunks) {
+              yield c;
+            }
+          })(),
+        }),
+      };
+
+      const event = {
+        requestContext: { http: { method: "POST" } },
+        body: JSON.stringify({ message: "見積もりを作成して", session_id: "sess-tool-test" }),
+      };
+
+      await handleRequest(event, responseStream, {}, mockClient);
+
+      assert.equal(responseStream.metadata.statusCode, 200);
+      const body = responseStream.getBody();
+      // tool_use イベントが SSE に含まれることを確認
+      assert.ok(body.includes('data: {"type":"tool_use","name":"get_product_info"}'));
+      // テキストも正常に返されることを確認
+      assert.ok(body.includes('data: {"type":"text","content":"製品A"}'));
+      assert.equal(responseStream.ended, true);
+    });
+  });
+
   describe("エージェント呼出し失敗", () => {
     it("エージェントエラー時はエラーイベントを返す", async () => {
       mockClient = {

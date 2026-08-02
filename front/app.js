@@ -4,7 +4,7 @@
 
 // ----- 設定セクション -----
 // バックエンドのURL（Lambda Function URL）をここに設定してください
-const BACKEND_URL = " https://6kozybnrfsk2upbafub6ohgla40wqspa.lambda-url.ap-northeast-1.on.aws/";
+const BACKEND_URL = "https://uun4pyues2ihvnhevhiuiwwt4e0zoqni.lambda-url.ap-northeast-1.on.aws/";
 // 例: const BACKEND_URL = "https://xxxxxxxxxx.lambda-url.ap-northeast-1.on.aws/";
 
 // ----- marked.js の設定 -----
@@ -149,6 +149,11 @@ async function processStream(response) {
                 scrollToBottom();
                 break;
 
+              case "tool_use":
+                // ツール使用状況を表示
+                showToolIndicator(event.name, agentBubble);
+                break;
+
               case "end":
                 // ストリーム完了、セッションIDを保存
                 if (event.session_id) {
@@ -282,4 +287,31 @@ function scrollToBottom() {
 function setInputDisabled(disabled) {
   messageInput.disabled = disabled;
   sendButton.disabled = disabled;
+}
+
+
+// ----- ツール使用インジケーター -----
+
+/**
+ * ツール使用インジケーターを表示する
+ * @param {string} toolName - 使用されたツール名
+ * @param {HTMLElement} agentBubble - エージェントのメッセージバブル
+ */
+function showToolIndicator(toolName, agentBubble) {
+  // ツール名を日本語にマッピング
+  const toolLabels = {
+    "get_product_info": "📦 製品情報を取得中...",
+    "convert_currency": "💱 通貨を換算中...",
+    "create_quote": "📄 見積書を作成中...",
+  };
+  const label = toolLabels[toolName] || `🔧 ${toolName} を実行中...`;
+
+  // インジケーター要素を作成
+  const indicator = document.createElement("div");
+  indicator.classList.add("tool-indicator");
+  indicator.textContent = label;
+
+  // エージェントバブルの前に挿入（バブルの直前）
+  agentBubble.parentNode.insertBefore(indicator, agentBubble);
+  scrollToBottom();
 }

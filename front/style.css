@@ -372,3 +372,16 @@ body {
   margin: 0.6em 0;
   color: #64748b;
 }
+
+
+/* ツール使用インジケーター */
+.tool-indicator {
+  align-self: flex-start;
+  padding: 6px 12px;
+  font-size: 0.8125rem;
+  color: #64748b;
+  background-color: transparent;
+  border-left: 3px solid var(--color-primary);
+  margin-left: 4px;
+  animation: fadeIn 0.2s ease-out;
+}

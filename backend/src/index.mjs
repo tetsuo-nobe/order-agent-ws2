@@ -86,8 +86,12 @@ async function* invokeAgentRuntimeStream(agentRuntimeArn, sessionId, inputText) 
       const jsonStr = line.slice(6); // "data: " を除去
       try {
         const event = JSON.parse(jsonStr);
+        // contentBlockStart イベント（ツール呼出し開始）
+        if (event.event?.contentBlockStart?.start?.toolUse) {
+          yield { contentBlockStart: { start: { toolUse: event.event.contentBlockStart.start.toolUse } } };
+        }
         // contentBlockDelta イベントからテキストを抽出
-        if (event.event?.contentBlockDelta?.delta?.text) {
+        else if (event.event?.contentBlockDelta?.delta?.text) {
           yield { contentBlockDelta: event.event.contentBlockDelta };
         }
         // messageStop イベント
@@ -106,7 +110,10 @@ async function* invokeAgentRuntimeStream(agentRuntimeArn, sessionId, inputText) 
     if (line.startsWith("data: ")) {
       try {
         const event = JSON.parse(line.slice(6));
-        if (event.event?.contentBlockDelta?.delta?.text) {
+        // contentBlockStart イベント（ツール呼出し開始）
+        if (event.event?.contentBlockStart?.start?.toolUse) {
+          yield { contentBlockStart: { start: { toolUse: event.event.contentBlockStart.start.toolUse } } };
+        } else if (event.event?.contentBlockDelta?.delta?.text) {
           yield { contentBlockDelta: event.event.contentBlockDelta };
         } else if (event.event?.messageStop) {
           yield { messageStop: event.event.messageStop };

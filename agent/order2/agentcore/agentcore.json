@@ -17,7 +17,7 @@
       "networkMode": "PUBLIC",
       "protocol": "HTTP",
       "envVars": [
-        {"name": "QUOTE_API_URL", "value": "https://ey8v32fmtd.execute-api.ap-northeast-1.amazonaws.com/prod/quote"}
+          {"name": "QUOTE_API_URL", "value": "https://a01mshgzy3.execute-api.ap-northeast-1.amazonaws.com/prod/quote"}
       ]
     }
   ],

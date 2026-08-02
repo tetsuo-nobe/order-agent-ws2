@@ -97,11 +97,26 @@ sam deploy --guided
 cd agent/order2/agentcore
 ```
 
-`agentcore.json` の `QUOTE_API_URL` 環境変数に、手順1で取得した URL を設定：
+`agentcore.json` の `runtimes[0].envVars` に、手順1で取得した ToolAPI の URL を設定する：
 
 ```json
-{"name": "QUOTE_API_URL", "value": "https://xxxxxxxx.execute-api.ap-northeast-1.amazonaws.com/prod/quote"}
+"runtimes": [
+  {
+    "name": "MyAgent",
+    "build": "CodeZip",
+    "entrypoint": "main.py",
+    "codeLocation": "app/MyAgent/",
+    "runtimeVersion": "PYTHON_3_14",
+    "networkMode": "PUBLIC",
+    "protocol": "HTTP",
+    "envVars": [
+      {"name": "QUOTE_API_URL", "value": "https://xxxxxxxx.execute-api.ap-northeast-1.amazonaws.com/prod/quote"}
+    ]
+  }
+]
 ```
+
+> `value` には手順1の Outputs `QuoteApiUrl` の値を設定してください。
 
 デプロイ：
 
