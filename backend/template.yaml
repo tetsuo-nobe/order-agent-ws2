@@ -1,0 +1,63 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  SAM template for Backend Function.
+  Defines a Node.js Lambda with Function URL for streaming responses
+  from the AgentCore Runtime agent to the frontend.
+
+Parameters:
+  AgentId:
+    Type: String
+    Description: "AgentCore Runtime agent ID for invocation"
+    Default: ""
+
+Globals:
+  Function:
+    Timeout: 120
+    MemorySize: 256
+
+Resources:
+  # ---------------------------------------------------------------
+  # Lambda function that mediates between frontend and AgentCore agent
+  # ---------------------------------------------------------------
+  BackendFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: index.handler
+      Runtime: nodejs20.x
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          AGENT_ID: !Ref AgentId
+          AWS_REGION_NAME: !Ref AWS::Region
+      FunctionUrlConfig:
+        AuthType: NONE
+        InvokeMode: RESPONSE_STREAM
+        Cors:
+          AllowOrigins:
+            - "*"
+          AllowMethods:
+            - "POST"
+          AllowHeaders:
+            - "Content-Type"
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - bedrock:InvokeAgent
+                - bedrock-agentcore:InvokeAgentRuntime
+                - bedrock-agentcore:*
+              Resource: "*"
+
+Outputs:
+  # Function URL endpoint for frontend configuration
+  BackendFunctionUrl:
+    Description: "Backend Function URL endpoint"
+    Value: !GetAtt BackendFunctionUrl.FunctionUrl
+
+  # Function ARN
+  BackendFunctionArn:
+    Description: "Backend Function ARN"
+    Value: !GetAtt BackendFunction.Arn

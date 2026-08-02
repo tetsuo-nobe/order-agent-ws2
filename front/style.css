@@ -1,0 +1,374 @@
+/* ===================================
+   注文見積りアシスタント - スタイル定義
+   =================================== */
+
+/* カスタムプロパティ（テーマカラー） */
+:root {
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-user-bubble: #2563eb;
+  --color-user-text: #ffffff;
+  --color-agent-bubble: #f1f5f9;
+  --color-agent-text: #1e293b;
+  --color-bg: #f8fafc;
+  --color-header-bg: #ffffff;
+  --color-input-bg: #ffffff;
+  --color-input-border: #e2e8f0;
+  --color-input-focus: #2563eb;
+  --color-shadow: rgba(0, 0, 0, 0.08);
+  --color-error: #ef4444;
+  --color-error-bg: #fef2f2;
+  --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans",
+    "Noto Sans JP", sans-serif;
+  --max-width: 800px;
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
+}
+
+/* リセットと基本スタイル */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  font-family: var(--font-stack);
+  font-size: 16px;
+  line-height: 1.6;
+  background-color: var(--color-bg);
+  color: var(--color-agent-text);
+}
+
+/* スクリーンリーダー専用（非表示だがアクセシブル） */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ヘッダー */
+.app-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background-color: var(--color-header-bg);
+  border-bottom: 1px solid var(--color-input-border);
+  box-shadow: 0 1px 3px var(--color-shadow);
+  padding: 12px 16px;
+  text-align: center;
+}
+
+.app-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+/* チャットコンテナ */
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding-top: 56px; /* ヘッダー分のオフセット */
+}
+
+/* メッセージ一覧エリア */
+.message-list {
+  flex: 1;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* メッセージバブル共通 */
+.message {
+  max-width: 80%;
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  box-shadow: 0 1px 2px var(--color-shadow);
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ユーザーメッセージ（右寄せ） */
+.message.user {
+  align-self: flex-end;
+  background-color: var(--color-user-bubble);
+  color: var(--color-user-text);
+  border-bottom-right-radius: 4px;
+}
+
+/* エージェントメッセージ（左寄せ） */
+.message.agent {
+  align-self: flex-start;
+  background-color: var(--color-agent-bubble);
+  color: var(--color-agent-text);
+  border-bottom-left-radius: 4px;
+}
+
+/* エラーメッセージ */
+.message.error {
+  align-self: center;
+  background-color: var(--color-error-bg);
+  color: var(--color-error);
+  border: 1px solid var(--color-error);
+  font-size: 0.875rem;
+  text-align: center;
+  max-width: 90%;
+}
+
+/* ローディング/タイピングインジケーター */
+.typing-indicator {
+  align-self: flex-start;
+  display: flex;
+  gap: 4px;
+  padding: 12px 16px;
+  background-color: var(--color-agent-bubble);
+  border-radius: var(--radius-md);
+  border-bottom-left-radius: 4px;
+  box-shadow: 0 1px 2px var(--color-shadow);
+}
+
+.typing-indicator .dot {
+  width: 8px;
+  height: 8px;
+  background-color: #94a3b8;
+  border-radius: 50%;
+  animation: typing 1.4s infinite ease-in-out;
+}
+
+.typing-indicator .dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-indicator .dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes typing {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
+/* 入力エリア */
+.input-area {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  background-color: var(--color-input-bg);
+  border-top: 1px solid var(--color-input-border);
+  box-shadow: 0 -1px 3px var(--color-shadow);
+}
+
+.message-input {
+  flex: 1;
+  padding: 10px 16px;
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius-lg);
+  font-size: 0.9375rem;
+  font-family: var(--font-stack);
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.message-input:focus {
+  border-color: var(--color-input-focus);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+.message-input:disabled {
+  background-color: var(--color-bg);
+  cursor: not-allowed;
+}
+
+.send-button {
+  padding: 10px 20px;
+  background-color: var(--color-primary);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-lg);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  font-family: var(--font-stack);
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.send-button:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
+}
+
+.send-button:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.send-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 600px) {
+  .chat-container {
+    max-width: 100%;
+  }
+
+  .message {
+    max-width: 90%;
+  }
+
+  .input-area {
+    padding: 8px 12px;
+  }
+
+  .send-button {
+    padding: 10px 14px;
+  }
+}
+
+/* ===================================
+   マークダウンレンダリング用スタイル
+   =================================== */
+
+/* マークダウン変換後のバブルは white-space を通常に戻す */
+.message.agent.markdown-body {
+  white-space: normal;
+}
+
+/* マークダウン内の要素スタイル */
+.message.agent.markdown-body h1,
+.message.agent.markdown-body h2,
+.message.agent.markdown-body h3 {
+  margin-top: 0.8em;
+  margin-bottom: 0.4em;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.message.agent.markdown-body h1 { font-size: 1.25em; }
+.message.agent.markdown-body h2 { font-size: 1.1em; }
+.message.agent.markdown-body h3 { font-size: 1em; }
+
+.message.agent.markdown-body p {
+  margin-bottom: 0.6em;
+}
+
+.message.agent.markdown-body p:last-child {
+  margin-bottom: 0;
+}
+
+.message.agent.markdown-body ul,
+.message.agent.markdown-body ol {
+  margin: 0.4em 0;
+  padding-left: 1.5em;
+}
+
+.message.agent.markdown-body li {
+  margin-bottom: 0.2em;
+}
+
+.message.agent.markdown-body strong {
+  font-weight: 600;
+}
+
+.message.agent.markdown-body code {
+  background-color: rgba(0, 0, 0, 0.06);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  font-size: 0.875em;
+  font-family: "SF Mono", "Consolas", "Monaco", monospace;
+}
+
+.message.agent.markdown-body pre {
+  background-color: #1e293b;
+  color: #e2e8f0;
+  padding: 12px 16px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 0.6em 0;
+}
+
+.message.agent.markdown-body pre code {
+  background-color: transparent;
+  padding: 0;
+  color: inherit;
+  font-size: 0.8125em;
+}
+
+.message.agent.markdown-body table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0.6em 0;
+  font-size: 0.875em;
+}
+
+.message.agent.markdown-body th,
+.message.agent.markdown-body td {
+  border: 1px solid #e2e8f0;
+  padding: 6px 10px;
+  text-align: left;
+}
+
+.message.agent.markdown-body th {
+  background-color: rgba(0, 0, 0, 0.04);
+  font-weight: 600;
+}
+
+.message.agent.markdown-body hr {
+  border: none;
+  border-top: 1px solid #e2e8f0;
+  margin: 0.8em 0;
+}
+
+.message.agent.markdown-body a {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+.message.agent.markdown-body blockquote {
+  border-left: 3px solid var(--color-primary);
+  padding-left: 12px;
+  margin: 0.6em 0;
+  color: #64748b;
+}

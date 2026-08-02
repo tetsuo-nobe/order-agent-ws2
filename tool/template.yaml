@@ -1,0 +1,174 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  SAM template for Quote Tool API and AgentCore Gateway.
+  Defines REST API with IAM auth, Lambda function for PDF generation,
+  S3 bucket for storage, and AgentCore Gateway integration.
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 256
+
+Resources:
+  # ---------------------------------------------------------------
+  # S3 Bucket for storing generated quote PDFs
+  # ---------------------------------------------------------------
+  QuoteBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+
+  # ---------------------------------------------------------------
+  # REST API with IAM authorization for secure tool invocation
+  # ---------------------------------------------------------------
+  QuoteApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: prod
+      Auth:
+        DefaultAuthorizer: AWS_IAM
+        ResourcePolicy:
+          AwsAccountWhitelist:
+            - !Ref AWS::AccountId
+      DefinitionBody:
+        openapi: "3.0.1"
+        info:
+          title: "Quote Tool API"
+          version: "1.0"
+        paths:
+          /quote:
+            post:
+              summary: "Generate a quote PDF"
+              operationId: createQuote
+              x-amazon-apigateway-auth:
+                type: AWS_IAM
+              x-amazon-apigateway-integration:
+                type: aws_proxy
+                httpMethod: POST
+                uri:
+                  Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${CreateQuoteFunction.Arn}/invocations"
+              requestBody:
+                required: true
+                content:
+                  application/json:
+                    schema:
+                      type: object
+              responses:
+                "200":
+                  description: "Quote PDF generated successfully"
+                  content:
+                    application/json:
+                      schema:
+                        type: object
+                "400":
+                  description: "Invalid request"
+                "500":
+                  description: "Internal server error"
+
+  # ---------------------------------------------------------------
+  # Lambda function for quote PDF generation
+  # ---------------------------------------------------------------
+  CreateQuoteFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: handler.lambda_handler
+      Runtime: python3.13
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          QUOTE_BUCKET_NAME: !Ref QuoteBucket
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Ref QuoteBucket
+      Events:
+        CreateQuote:
+          Type: Api
+          Properties:
+            RestApiId: !Ref QuoteApi
+            Path: /quote
+            Method: post
+
+  # ---------------------------------------------------------------
+  # IAM Role for AgentCore Gateway to invoke the REST API
+  # ---------------------------------------------------------------
+  AgentCoreGatewayRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: bedrock-agentcore.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: InvokeQuoteApi
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - execute-api:Invoke
+                Resource:
+                  - !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${QuoteApi}/prod/POST/quote"
+
+  # ---------------------------------------------------------------
+  # AgentCore Gateway - unified connectivity layer for agent tools
+  # ---------------------------------------------------------------
+  QuoteAgentCoreGateway:
+    Type: AWS::BedrockAgentCore::Gateway
+    Properties:
+      Name: quote-tool-gateway
+      Description: "Gateway for quote generation tool API"
+      AuthorizerType: AWS_IAM
+      ProtocolType: MCP
+      RoleArn: !GetAtt AgentCoreGatewayRole.Arn
+
+  # ---------------------------------------------------------------
+  # AgentCore Gateway Target - points to the Quote REST API
+  # ---------------------------------------------------------------
+  QuoteGatewayTarget:
+    Type: AWS::BedrockAgentCore::GatewayTarget
+    Properties:
+      GatewayIdentifier: !GetAtt QuoteAgentCoreGateway.GatewayIdentifier
+      Name: quote-api-target
+      Description: "Target for quote generation REST API"
+      TargetConfiguration:
+        Mcp:
+          ApiGateway:
+            RestApiId: !Ref QuoteApi
+            Stage: prod
+            ApiGatewayToolConfiguration:
+              ToolFilters:
+                - FilterPath: /quote
+                  Methods:
+                    - POST
+      CredentialProviderConfigurations:
+        - CredentialProviderType: GATEWAY_IAM_ROLE
+
+Outputs:
+  # API endpoint URL
+  QuoteApiUrl:
+    Description: "Quote API endpoint URL"
+    Value: !Sub "https://${QuoteApi}.execute-api.${AWS::Region}.amazonaws.com/prod/quote"
+
+  # S3 Bucket name
+  QuoteBucketName:
+    Description: "S3 bucket for quote PDFs"
+    Value: !Ref QuoteBucket
+
+  # AgentCore Gateway identifier
+  GatewayIdentifier:
+    Description: "AgentCore Gateway identifier"
+    Value: !GetAtt QuoteAgentCoreGateway.GatewayIdentifier
+
+  # AgentCore Gateway URL
+  GatewayUrl:
+    Description: "AgentCore Gateway URL"
+    Value: !GetAtt QuoteAgentCoreGateway.GatewayUrl

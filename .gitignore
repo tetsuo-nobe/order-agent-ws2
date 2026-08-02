@@ -1,0 +1,52 @@
+# ===================================
+# 注文見積りアシスタント - .gitignore
+# ===================================
+
+# ----- OS -----
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# ----- IDE -----
+.vscode/
+*.swp
+*.swo
+
+# ----- Python -----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.hypothesis/
+.pytest_cache/
+
+# ----- Node.js -----
+node_modules/
+
+# ----- AWS SAM -----
+.aws-sam/
+
+# ----- AWS CDK -----
+cdk.out/
+cdk/dist/
+cdk/node_modules/
+
+# ----- AgentCore CLI -----
+agent/order2/agentcore/.cli/logs/
+agent/order2/agentcore/.cache/
+agent/order2/agentcore/debug_output.txt
+
+# ----- 環境変数・機密情報 -----
+.env
+.env.local
+*.pem
+policy.json
+
+# ----- ビルド成果物 -----
+*.zip
+outfile.bin
+
+# ----- samconfig (デプロイ固有の設定) -----
+# samconfig.toml はデプロイ環境ごとに異なるため除外
+# 必要に応じてコメントアウトを解除
+# samconfig.toml

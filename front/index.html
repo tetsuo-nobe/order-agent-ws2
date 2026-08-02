@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>注文見積りアシスタント</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- ヘッダー -->
+  <header class="app-header">
+    <h1 class="app-title">注文見積りアシスタント</h1>
+  </header>
+
+  <!-- メインコンテナ -->
+  <main class="chat-container" role="main">
+    <!-- メッセージ一覧エリア -->
+    <div
+      class="message-list"
+      id="messageList"
+      role="log"
+      aria-live="polite"
+      aria-label="チャットメッセージ一覧"
+    >
+      <!-- メッセージはJSで動的に追加される -->
+    </div>
+
+    <!-- 入力エリア -->
+    <form class="input-area" id="inputForm" aria-label="メッセージ入力フォーム">
+      <label for="messageInput" class="visually-hidden">メッセージを入力</label>
+      <input
+        type="text"
+        id="messageInput"
+        class="message-input"
+        placeholder="メッセージを入力..."
+        autocomplete="off"
+        aria-label="メッセージを入力"
+      >
+      <button
+        type="submit"
+        id="sendButton"
+        class="send-button"
+        aria-label="送信"
+      >
+        送信
+      </button>
+    </form>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

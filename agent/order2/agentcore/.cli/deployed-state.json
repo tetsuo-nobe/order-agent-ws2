@@ -1,0 +1,17 @@
+{
+  "targets": {
+    "default": {
+      "resources": {
+        "runtimes": {
+          "MyAgent": {
+            "runtimeId": "order2_MyAgent-oXUbx29Z5k",
+            "runtimeArn": "arn:aws:bedrock-agentcore:ap-northeast-1:670208121311:runtime/order2_MyAgent-oXUbx29Z5k",
+            "roleArn": "arn:aws:iam::670208121311:role/AgentCore-order2-default-ApplicationAgentMyAgentRun-KZNEdF4JkBjB"
+          }
+        },
+        "stackName": "AgentCore-order2-default",
+        "deployHash": "4921fe8868d2bb8f"
+      }
+    }
+  }
+}

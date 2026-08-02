@@ -1,0 +1,6 @@
+{
+  "name": "backend-tests",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Unit tests for backend Lambda function"
+}
